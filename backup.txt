@@ -1,0 +1,379 @@
+// baza.cpp: definiuje punkt wejścia dla aplikacji.
+//
+
+#include "baza.h"
+#include "randomgen.h"
+#include <vector>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <memory>
+using namespace std;
+
+
+template<typename D, typename B>
+unique_ptr<D> static_cast_ptr(unique_ptr<B>& base) {
+	return unique_ptr<D>(static_cast<D*>(base.release()));
+}
+template<typename D, typename B>
+unique_ptr<D> static_cast_ptr(unique_ptr<B>&& base) {
+	return unique_ptr<D>(static_cast<D*>(base.release()));
+}
+
+class Pojazd {
+public:
+	Pojazd() : marka(Random_MarkaG()), model(Random_ModelG()), data(Random_Data()), pojemnosc(Random_Poj()), power(Random_Power()){ }
+	Pojazd(string mar,string mod,int dat,double poj,double pow):marka(mar),model(mod),data(dat),pojemnosc(poj), power(pow) {}
+	const int getId() const{return id; }
+	const int getWiek() const { return wiek; }
+	void setId(int ID) {  id = ID; }
+	//Pojazd& operator++(int) {
+	//	++wiek;
+	//	return *this;
+	//	}
+	friend bool operator<(const Pojazd& P1, const Pojazd& P2);
+	//friend bool fun(const Pojazd& P1, const Pojazd& P2);
+
+	int data;
+
+	void print() { cout << "Marka:"<<marka <<", model:"<<model <<", data:" <<data<<", wiek:"<<wiek<<", poj:" << pojemnosc<<", moc:"<<power<< endl; }
+	virtual ~Pojazd() { cout << "Bye Pojazd" << endl; }
+private:
+	string marka;
+	string model;
+//	int data;
+	double power;
+	double pojemnosc;
+	int liczba_cech;
+	int wiek=2022-data;
+	bool diesel;
+	int id;
+	friend Pojazd& operator++(Pojazd& L);
+	//friend void sortby(vector  <shared_ptr<Pojazd>> Katalog);
+	//friend Data::void sortby();
+};
+
+Pojazd& operator++(Pojazd& L) {	
+	++L.wiek;
+	return L;
+	}
+
+
+
+class Motocykl :public Pojazd{
+public:
+	static char M;
+	Motocykl() :Pojazd((Random_MarkaM()), (Random_ModelM()),(Random_Data()),(Random_Poj()),(Random_Power())),boxer(Random_Boxer()) {}
+	Motocykl(string mar, string mod, int dat, double poj, double pow,bool b) :Pojazd(mar,mod,dat,poj,pow), boxer(b) {}
+	virtual void print() { cout << "\tBoxer?:\t" << boxer << endl; }
+	virtual~ Motocykl() { cout << "Bye motocykl" << endl; }
+	bool getBool() { return boxer; }
+private:
+	bool boxer;
+};
+
+class Osobowy:public Pojazd {
+public:
+	Osobowy():Pojazd((Random_MarkaO()), (Random_ModelO()), (Random_Data()), (Random_Poj()), (Random_Power())), pasazerowie(Random_Pasazerowie()) {}
+	Osobowy(string mar, string mod, int dat, double poj, double pow, int p) :Pojazd(mar, mod, dat,poj,pow), pasazerowie(p) {}
+	virtual void print() { cout << "\tPasazerowie?:\t" << pasazerowie << endl; }
+	virtual~Osobowy() { cout << "Bye osobowy" << endl; }
+private:
+	int pasazerowie;
+
+};
+class LKW:public Pojazd {
+public:
+	LKW() :Pojazd((Random_MarkaL()), (Random_ModelL()), (Random_Data()), (Random_Poj()), (Random_Power())), ladunek(Random_Ladunek()) {}
+	LKW(string mar, string mod, int dat, double poj, double pow, double l) :Pojazd(mar, mod, dat, poj,pow), ladunek(l) {}
+	virtual void  print() { cout << "\tLadunek?:\t" <<ladunek<< endl; }
+	virtual ~LKW() { cout << "Bye lkw" << endl; }
+private:
+	double ladunek;
+
+};
+
+
+
+class Data {
+public:
+	Data() { cout << "Welcome to the Data!" << endl; }
+	void dodaj_random() {
+		Katalog.push_back(make_shared<Motocykl>());
+		Katalog.back()->setId(numer);
+		numer += 1;
+	}
+	void dodaj()
+	{
+		//string	a="BMW";
+		//string b="K1200";
+		//int c=2010;
+		//double d=110;
+		//double e=35.5;
+		//bool	f=true;
+		// 
+		//Vehicles.push_back(Motocykl(a, b, c, d, e, f));
+		cout << "Would you like to randomize? yes/no" << endl;
+		string question;
+		cin >> question;
+		if ((question == "yes") || (question == "y")) {
+			Katalog.push_back(make_shared<Motocykl>());
+
+		}
+		else {
+			string a, b;
+			int c;
+			double d, e;
+			bool f;
+			cout << endl << "Podaj marke:\t";
+			cin >> a;
+			cout << "Podaj model:\t";
+			cin >> b;
+			cout << endl << "Podaj Date produkcji:\t";
+			cin >> c;
+			cout << endl << "Podaj pojemnosc:\t";
+			cin >> d;
+			cout << endl << "Podaj moc:\t";
+			cin >> e;
+			cout << endl << "Podaj parametr:\t";
+			cin >> f;
+
+			Katalog.push_back(make_shared<Motocykl>(a, b, c, d, e, f));
+		}
+		Katalog.back()->setId(numer);
+		numer += 1;
+		//Vehicles.push_back(make_unique<Motocykl>(a, b, c, d, e, f));
+		//Vehicles.push_back(Motocykl(a, b, c, d, e, f));
+		// 
+		//dum(new Motocykl(a, b, c, d, e, f));
+	}
+
+	void timeflow() {
+		//friend operator ++();
+		//Pojazd&++(Katalog[0]);
+
+	}
+
+
+
+
+	const void drukuj() {
+		for (int i = 0; i < size(Katalog); ++i) {
+			//Vehicles[i].print();
+			cout << Katalog[i]->getId() << "\t";
+			Katalog[i]->print();
+			//dynamic_pointer_cast<Motocykl>(Katalog[i])->print();
+			//dynamic_pointer_cast<Pojazd>(Katalog[i])->print();
+			static_pointer_cast<Motocykl>(Katalog[i])->print();
+			//static_pointer_cast<Pojazd>(Katalog[i])->print();
+			//static_cast<Pojazd>(Vehicles[i]).print();
+			//cout << Katalog[i].getBool()<<
+			//stat_cast_ptr<Motocykl>(Vehicles[i]);
+			//auto derived=stat_cast_ptr<Motocykl>(Vehicles[i]);
+		}
+	}
+
+	const void sortuj() {
+		sort(Katalog.begin(), Katalog.end());
+
+	}
+
+	void sortby(){
+	sort(Katalog.begin(), Katalog.end(), [](shared_ptr<Pojazd>& arg1, shared_ptr<Pojazd>& arg2) {
+		return (arg1->data < arg2->data);
+		//std::cout << arg.isMonster() << std::endl;
+		//if (arg.isMonster() == true) {
+		
+			//return arg1->data>arg2->data; //bullshit afterawrds
+		/*	cout << "m - moc, p - pojemnosc, d- data, w-wiek" << endl;
+		string input;
+		cin >> input;
+		if (input == "m" || input == "moc") {
+			return (arg1->pojemnosc < arg2->pojemnosc);
+		}
+		if (input == "p" || input == "pojemnosc") {
+			return (arg1->pojemnosc < arg2->pojemnosc);
+	}
+		if (input == "d" || input == "data") {
+			return (arg1->data < arg2->data);
+		}
+		if (input == "w" || input == "wiek") {
+			return (arg1.wiek < arg2.wiek);
+		}
+		else {
+			return (P1.id < P2.id);
+		}
+		//}
+	//	else {
+		//	return 'y';
+	//	}*/
+		});
+		//
+		
+	}
+
+	
+	~Data() {}
+
+	//friend void sortby();
+
+
+private:
+	//vector < unique_ptr<Pojazd>> Vehicles;
+	//vector <Pojazd> Vehicles;
+	unique_ptr<Pojazd>* Veh;
+	unique_ptr<Pojazd> dum;
+	vector  <shared_ptr<Pojazd>> Katalog;
+	int numer=1;
+};
+
+
+
+bool operator<(const Pojazd& P1, const Pojazd& P2) {
+	return (P1.power < P2.power);
+	/*cout << "m - moc, p - pojemnosc, d- data, w-wiek" << endl;
+	string input;
+	cin >> input;
+	if (input == "m" || input == "moc") {
+		
+	}
+	 input == "p" || input == "pojemnosc") {
+		return (P1.pojemnosc < P2.pojemnosc);
+	}
+	if (input == "d" || input == "data") {
+		return (P1.data < P2.data);
+	}
+	if (input == "w" || input == "wiek") {
+		return (P1.wiek < P2.wiek);
+	}
+	else {
+		return (P1.id < P2.id);
+	}*/
+	
+//	return (P1.power < P2.power);
+}
+
+/*void sortby(vector  <shared_ptr<Pojazd>> Katalog) {
+		sort(Katalog.begin(), Katalog.end(),
+		[](const Pojazd& a, const Pojazd& b) -> bool
+		{
+			return a.data < b.data;
+		});
+}*/
+
+
+	class Konsola{
+	public:
+		//friend Firma;
+		Data A;
+
+		Konsola() {}
+
+		void akcja() {
+			int stan = 1;
+			string akcje;
+			cout << "Welcome to Bjarne Inc." << endl;
+
+			for (int turn = 1; turn <= 50; turn++) {
+
+					cout << "Choose wisely: lp,zinz,zmag,zmkt,zrob,kred,kt" << endl;
+					cout << "Ruch numer: " << turn + 1 << endl << endl;
+					cin >> akcje;
+					if (akcje == "lp") {
+						A.drukuj();
+						cout << endl;
+					}
+					if (akcje == "m") {
+						A.dodaj();
+						cout << endl;
+					}
+					if (akcje == "rm") {
+						A.dodaj_random();
+						cout << endl;
+					}
+					if (akcje == "time") {
+		
+						cout << endl;
+					}
+					if (akcje == "sort") {
+						A.sortuj();
+						A.drukuj();
+						cout << endl;
+					}
+					if (akcje == "sortby") {
+						A.sortby();
+						A.drukuj();
+						cout << endl;
+					}
+					if (akcje == "break") {
+						
+						cout <<"SEEYA"<< endl;
+						break;
+					}
+
+			}cout << "Koniec gry!" << endl;
+
+
+		}
+		~Konsola() {}
+	private:
+
+	};
+
+int main()
+{
+	ofstream myfile;
+	myfile.open("dane.txt");
+	myfile << "Boo.\n";
+	myfile.close();
+
+	//Motocykl A();
+	//Data D;
+	//D.dodaj();
+	//D.drukuj();
+	// 
+	// 
+	// 
+	//unique_ptr<Pojazd> poj(new Motocykl("M","M",1,1,1,false));
+	/*
+	unique_ptr<Pojazd> poj(new Motocykl("M","M", 1, 1, 1,true));
+	poj->print();
+	//static_cast_ptr<Pojazd>(poj)->print();
+	auto derived_ptr = static_cast_ptr<Pojazd>(poj);
+	derived_ptr->print();
+	//poj->print();
+	Pojazd* f = new Motocykl("M", "M", 1, 1, 1, true);
+	f->print();
+	static_cast<Pojazd*>(f)->print();
+	*/
+	vector <Pojazd> VVV;
+	VVV.push_back(Pojazd());
+	VVV.push_back(Pojazd());
+	for (auto& it : VVV) {
+		it.print();
+			++(it); 
+			it.print();
+	}//alternative
+
+	/* //trial trial
+	cout << "Hello CMake. POJAZD" << endl;
+	Pojazd AAA;
+	AAA.print();
+	cout << "MOTO" << endl;
+	Motocykl MMM;
+	static_cast<Pojazd>(MMM).print();
+	MMM.print();
+	cout << "OSOBISTY "<< endl;
+	Osobowy OOO;
+	static_cast<Pojazd>(OOO).print();
+	OOO.print();
+	cout << "LORRY" << endl;
+	LKW LLL;
+	static_cast<Pojazd>(LLL).print();
+	LLL.print();
+	*/
+	Konsola K;
+	K.akcja();
+	return 0;
+}
