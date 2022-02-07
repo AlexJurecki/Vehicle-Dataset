@@ -32,7 +32,10 @@ public:
 	const int getWiek() const { return wiek; }
 	const double getData() const { return data; }//int
 	const double getPower() const { return power; }//int
+	const double getPojemnosc() const { return pojemnosc; }//int nowosc
 	list<string> getCechy() const { return cechy; }////
+	const string getModel() const { return model; }//int
+	const string getMarka() const { return marka; }//int
 	void setId(int ID) { id = ID; }
 	void setCechy() {
 		cout << "Max 3 cechy!" << endl;
@@ -94,7 +97,7 @@ Pojazd& operator++(Pojazd& L) {
 
 class Motocykl :public Pojazd {
 public:
-	static char M;
+	const char typ='M';//static
 	Motocykl() :Pojazd((Random_MarkaM()), (Random_ModelM()), (Random_Data()), (Random_Poj()), (Random_Power())), boxer(Random_Boxer()) {}
 	Motocykl(string mar, string mod, int dat, double poj, double pow, bool b) :Pojazd(mar, mod, dat, poj, pow), boxer(b) {}
 	virtual void print() { cout << "\tBoxer?:\t" << boxer << endl; }

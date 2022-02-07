@@ -10,7 +10,7 @@
 #include <fstream>
 #include <algorithm>
 #include <memory>
-
+#include <cstring>
 
 
 class Data {
@@ -78,6 +78,20 @@ public:
 			it->print();
 		}
 	}
+	/*
+	template <typename T>
+	//void maxi(const T (*func)()){
+	T maxi(const string& str){
+		
+		//auto it = max(Katalog.begin(), Katalog.end(), [&](shared_ptr<Pojazd>& arg1, shared_ptr<Pojazd>& arg2) {return arg1->func() > arg2->func(); });
+		if (str=="power")
+		auto it = max(Katalog.begin(), Katalog.end(), [](shared_ptr<Pojazd>& arg1, shared_ptr<Pojazd>& arg2) {return (arg1->getPower() > (arg2->getPower(); });
+		//poj maximal_obj = Katalog[it];
+		//maximal_obj.print();
+		//cout <<"MAX cecha"<<  maximal_obj.t();
+		cout << "ITITIT"<<it;
+		return 
+	}*/
 
 
 	void dodaj_cechy() {
@@ -166,6 +180,104 @@ public:
 		Katalog.erase(it);
 
 	}
+
+	void Write() {
+		ofstream File("baza_binar.bin", ios::out | ios::binary, ofstream::trunc);
+		if (File.is_open())
+		{
+			int size_of_database = size(Katalog);
+				File.write((char*)&size_of_database, sizeof(size_of_database));
+				cout << size_of_database;
+			for (int i = 0; i < size(Katalog); ++i) {
+				//Vehicles[i].print();
+				//cout << Katalog[i]->getId() << "\t";
+				//Katalog[i]->print();
+				int id = Katalog[i]->getId();
+				File.write((char*)&id, sizeof(id));
+
+				size_t len = Katalog[i]->getMarka().size();
+				File.write((char*)&len, sizeof(len));
+				File.write((char*)&Katalog[i]->getMarka()[0], len);
+
+				len = Katalog[i]->getModel().size();
+				File.write((char*)&len, sizeof(len));
+				File.write((char*)&Katalog[i]->getModel()[0], len);
+
+				int dat= Katalog[i]->getData(); 
+				double poj = Katalog[i]->getPojemnosc();
+				double pow = Katalog[i]->getPower();
+				
+			//File.write((char*)&dat, sizeof(dat));
+			//	File.write((char*)&poj, sizeof(poj));
+			//	File.write((char*)&pow, sizeof(pow));
+				File.write((char*)&dat, sizeof(dat));
+				File.write((char*)&poj, sizeof(poj));
+				File.write((char*)&pow, sizeof(pow));
+
+				
+					//dynamic_pointer_cast<Pojazd>(Katalog[i])->print();
+				if (static_pointer_cast<Motocykl>(Katalog[i])->typ == 'M') {
+					char typ = 'M';
+					File.write((char*)&typ, sizeof(typ));
+					bool box= static_pointer_cast<Motocykl>(Katalog[i])->getBool();
+					File.write((char*)&box, sizeof(box));
+				}
+				
+
+			}
+			// No need. The file will be closed when the function returns.
+			// binFile.close();
+		}
+	}
+
+
+	void Read() {
+
+		ifstream File("baza_binar.bin", ios::in | ios::binary);
+		if (File.is_open())
+		{
+			int size_of_database;
+			File.read((char*)&size_of_database, sizeof(size_of_database));
+			cout<< endl<<"Size of databse "<<size_of_database;
+			for (int i = 0; i < size_of_database; i++) {
+
+				int id,da; double pow, poj; char typ; string mod, mar;
+
+				File.read((char*)&id, sizeof(id));
+
+				size_t len = 0;
+				File.read((char*)&len, sizeof(len));
+				mar.resize(len);
+				File.read((char*)&mar[0], len);
+				//cout << mar;
+
+				len = 0;
+				File.read((char*)&len, sizeof(len));
+				mod.resize(len);
+				File.read((char*)&mod[0], len);
+
+				File.read((char*)&da, sizeof(da));
+				File.read((char*)&poj, sizeof(poj));
+				File.read((char*)&pow, sizeof(pow));
+
+				File.read((char*)&typ, sizeof(typ));
+				if (typ == 'M') {
+					bool box;
+					File.read((char*)&box, sizeof(box));
+					Katalog.push_back(make_shared<Motocykl>(mar,mod,da,poj,pow,box));
+					//string mar, string mod, int dat, double poj, double pow, bool b
+					//Katalog.push_back(make_shared<Motocykl>(a, b, c, d, e, f));
+				}
+				Katalog.back()->setId(numer);
+				numer += 1;
+
+
+
+			}
+
+		}
+
+	}
 	
 	~Data() {}
 
@@ -231,7 +343,7 @@ bool operator<(const Pojazd& P1, const Pojazd& P2) {
 			for (int turn = 1; turn <= 50; turn++) {
 
 					cout << "Choose wisely: lp,m,rm,break,cech,sortby" << endl;
-					cout << "Ruch numer: " << turn + 1 << endl << endl;
+					cout << "Ruch numer: " << turn<< endl << endl;
 					cin >> akcje;
 					if (akcje == "lp") {
 						A.drukuj();
@@ -269,6 +381,24 @@ bool operator<(const Pojazd& P1, const Pojazd& P2) {
 						cin >>nr ;
 						A.eraser(nr);
 						cout << endl;
+					}
+					if (akcje == "max") {
+						cout << "Which maximum?" << endl;
+						string aux;
+						cin >> aux;
+						//A.maxi(Pojazd::getPower());
+						
+						cout << endl;
+					}
+					if (akcje == "write") {
+						A.Write();
+						cout << "write" << endl;
+
+					}
+					if (akcje == "read") {
+						A.Read();
+						cout << "read" << endl;
+
 					}
 					if (akcje == "break") {
 						
