@@ -1,6 +1,9 @@
 ﻿// baza.cpp: definiuje punkt wejścia dla aplikacji.
 //
 
+//JUST CHECKING GIT
+
+
 #include "baza.h"
 #include "pojazdy.hpp"
 #include "randomgen.h"
